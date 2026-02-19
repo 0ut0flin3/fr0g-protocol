@@ -1,6 +1,7 @@
 # Fr0g Protocol - for a free and open internet
+Official Discord: https://discord.gg/4qFn8pUk
 
-fr0g is an application/layer protocol built on the Stellar blockchain. It defines clear, immutable rules for permanently storing, retrieving, and managing files directly on-chain — without servers, without central authorities, and with strong built-in censorship resistance.
+Fr0g is an application/layer protocol built on the Stellar blockchain. It defines clear, immutable rules for permanently storing, retrieving, and managing files directly on-chain — without servers, without central authorities, and with strong built-in censorship resistance.
 
 Files are treated as native on-chain objects: split into small chunks, stored via Stellar's ManageData operations, optionally compressed, and made discoverable through public indexers. The protocol enforces strict rules for ownership, chunking, discoverability, deletion, and reserve recovery — making it a true decentralized filesystem primitive.
 
@@ -9,7 +10,7 @@ Mainnet support is technically possible using the exact same code, but remains i
 
 The protocol is fully client-agnostic: any software can read from or write to it following the defined rules. **Ribbit** is the official reference client (browser-based), but developers are encouraged to build alternative implementations.
 
---- **Join fr0g's Discord Server to discuss about this project: https://discord.gg/4qFn8pUk** ---
+---
 
 ## For Everyone
 
