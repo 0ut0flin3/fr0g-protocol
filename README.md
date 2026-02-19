@@ -3,7 +3,7 @@ Official Discord: https://discord.gg/4qFn8pUk
 
 Fr0g is an application/layer protocol built on the Stellar blockchain. It defines clear, immutable rules for permanently storing, retrieving, and managing files directly on-chain — without servers, without central authorities, and with strong built-in censorship resistance.
 
-Files are treated as native on-chain objects: split into small chunks, stored via Stellar's ManageData operations, optionally compressed, and made discoverable through public indexers. The protocol enforces strict rules for ownership, chunking, discoverability, deletion, and reserve recovery — making it a true decentralized filesystem primitive.
+Files are automatically divided into small MIME-aware chunks, stored immutably on-chain, optionally compressed, and made discoverable via public category indexers (Images, Videos, Websites, Code, Raw). The protocol enforces strict ownership, chunking, discoverability, deletion, and reserve recovery rules — creating a true on-chain filesystem primitive.
 
 **Currently designed and optimized exclusively for Stellar Testnet** — 100% free, zero real XLM cost.  
 Mainnet support is technically possible using the exact same code, but remains in active development and is not yet recommended for production use. By default, fr0g operates on Testnet. Ongoing work focuses on improving long-term data persistence and robustness on Testnet.
