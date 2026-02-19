@@ -1,8 +1,6 @@
 # fr0g Protocol
 
-**Decentralized File System Protocol on Stellar (Testnet-Focused)**
-
-fr0g is a **decentralized file system protocol** built on the Stellar blockchain. It defines clear, immutable rules for permanently storing, retrieving, and managing files directly on-chain — without servers, without central authorities, and with strong built-in censorship resistance.
+fr0g is an application/layer protocol built on the Stellar blockchain. It defines clear, immutable rules for permanently storing, retrieving, and managing files directly on-chain — without servers, without central authorities, and with strong built-in censorship resistance.
 
 Files are treated as native on-chain objects: split into small chunks, stored via Stellar's ManageData operations, optionally compressed, and made discoverable through public indexers. The protocol enforces strict rules for ownership, chunking, discoverability, deletion, and reserve recovery — making it a true decentralized filesystem primitive.
 
