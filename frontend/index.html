@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ribbit – fr0g Protocol Viewer</title>
+
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js"></script>
+  <script src="https://unpkg.com/@stellar/stellar-sdk@13/dist/stellar-sdk.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="fr0g.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:        #0d1117;
+      --text:       #c9d1d9;
+      --text-dim:   #8b949e;
+      --border:     #30363d;
+      --accent:     #58a6ff;
+      --accent-dark:#388bfd;
+      --red:        #f85149;
+      --green:      #3fb950;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+      margin: 0;
+      line-height: 1.6;
+      font-size: 16px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 32px 16px;
+      flex: 1;
+    }
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 32px;
+      margin-bottom: 40px;
+    }
+    h1 { font-size: 2.25rem; font-weight: 700; margin: 0; color: #fff; }
+    h2 { font-size: 1.5rem; font-weight: 600; margin: 0 0 1rem; color: #fff; }
+    .nav-tabs {
+      display: flex;
+      gap: 2rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 2rem;
+      font-size: 1rem;
+      font-weight: 500;
+    }
+    .nav-tabs button {
+      padding: 0.5rem 0;
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .nav-tabs button:hover { color: var(--text); }
+    .nav-tabs button.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease-in;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .card {
+      background: #161b22;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1.5rem;
+    }
+    button.primary {
+      background: var(--accent);
+      color: #0d1117;
+      border: none;
+      padding: 0.625rem 1.25rem;
+      border-radius: 6px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    button.primary:hover { background: var(--accent-dark); }
+    button.danger { background: var(--red); color: white; }
+    input, select {
+      background: #0d1117;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.625rem 0.75rem;
+      border-radius: 6px;
+      width: 100%;
+    }
+    .drop-zone {
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 5rem 1.5rem;
+      text-align: center;
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .drop-zone:hover { border-color: var(--accent); }
+    .hidden { display: none !important; }
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 24px 0 16px;
+      margin-top: auto;
+      font-size: 0.875rem;
+      color: var(--text-dim);
+      text-align: center;
+    }
+    .footer-links a {
+      color: var(--accent);
+      text-decoration: none;
+      margin: 0 12px;
+    }
+    .footer-links a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>Ribbit</h1>
+    <div style="color: var(--text-dim); font-size: 1rem; margin-top: 0.5rem;">
+      Viewer & uploader for fr0g protocol – immutable on-chain storage on Stellar
+    </div>
+  </header>
+
+  <div class="nav-tabs">
+    <button id="tab0" class="active" onclick="switchTab(0)">Discover</button>
+    <button id="tab1" onclick="switchTab(1)">Create ID</button>
+    <button id="tab2" onclick="switchTab(2)">Upload</button>
+    <button id="tab3" onclick="switchTab(3)">My Vault</button>
+  </div>
+
+  <div id="content0" class="tab-content active">
+    <h2>Recent uploads</h2>
+    <div class="flex justify-end mb-4">
+      <button onclick="loadLiveFeed()" class="primary text-sm px-4 py-2">Refresh</button>
+    </div>
+    <div id="feed" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+  </div>
+
+  <div id="content1" class="tab-content">
+    <h2>Generate keypair</h2>
+    <button onclick="generateID()" id="genBtn" class="primary w-full py-4 text-lg font-medium">
+      Generate fr0g ID
+    </button>
+    <div id="id-result" class="hidden mt-8 space-y-6">
+      <div>
+        <div class="text-sm text-[var(--text-dim)] mb-1">fr0g ID</div>
+        <div id="display-fr0g" class="font-mono bg-[#0d1117] p-3 border border-[var(--border)] rounded break-all"></div>
+      </div>
+      <div>
+        <div class="text-sm text-[var(--text-dim)] mb-1">Secret key (save this!)</div>
+        <div id="display-secret" class="font-mono bg-[#0d1117] p-3 border border-red-800 text-red-300 rounded break-all"></div>
+      </div>
+      <div class="flex gap-4">
+        <button onclick="copyToClipboard('id')" class="primary flex-1 py-3">Copy ID</button>
+        <button onclick="copyToClipboard('secret')" class="danger flex-1 py-3">Copy Secret</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="content2" class="tab-content">
+    <h2>Upload content</h2>
+    <div id="drop-zone" class="drop-zone" 
+         ondrop="handleDrop(event)" 
+         ondragover="event.preventDefault()" 
+         onclick="document.getElementById('file-upload').click()">
+      Drop file here or click to select
+      <input type="file" id="file-upload" class="hidden" onchange="handleFileSelect(event)">
+    </div>
+
+    <div id="preview-area" class="hidden mt-6 card">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div id="preview-visual" class="h-48 bg-black rounded flex items-center justify-center overflow-hidden border border-[var(--border)]"></div>
+        <div class="space-y-3">
+          <div><strong>File:</strong> <span id="file-name" class="font-mono"></span></div>
+          <div><strong>Size:</strong> <span id="file-size"></span></div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+        <div>
+          <label class="block text-sm text-[var(--text-dim)] mb-1">Index (0–99)</label>
+          <input id="upload-index" type="number" value="0" min="0" max="99">
+        </div>
+        <div>
+          <label class="block text-sm text-[var(--text-dim)] mb-1">Description (≤25 chars)</label>
+          <input id="upload-desc" type="text" maxlength="25" placeholder="example content">
+        </div>
+        <div>
+          <label class="block text-sm text-[var(--text-dim)] mb-1">Category</label>
+          <select id="upload-cat">
+            <option value="images">Images</option>
+            <option value="video">Videos</option>
+            <option value="html">Websites</option>
+            <option value="code">Code</option>
+            <option value="raw">Raw</option>
+          </select>
+        </div>
+      </div>
+
+      <label class="flex items-center gap-2 mt-6 text-sm">
+        <input type="checkbox" id="discoverable" checked> Make discoverable (public indexer)
+      </label>
+
+      <button onclick="startUpload()" id="upload-btn" class="primary w-full mt-8 py-4 font-medium">Upload</button>
+      <div id="upload-progress" class="hidden mt-3 h-1 bg-[var(--accent)] rounded" style="width:0%"></div>
+    </div>
+  </div>
+
+  <div id="content3" class="tab-content">
+    <h2>View / Delete content</h2>
+    <div class="flex gap-3">
+      <input id="vault-id" placeholder="fr0g ID..." class="flex-1">
+      <button onclick="loadVault()" class="primary px-6 py-2">Load</button>
+    </div>
+    <div id="vault-files" class="mt-8"></div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-links">
+    <a href="https://github.com/0ut0flin3/fr0g-protocol" target="_blank">GitHub (Source Code)</a>
+    <a href="https://discord.gg/fr0g" target="_blank">Discord Community</a>
+  </div>
+</footer>
+
+<script>
+  let currentSecret = "", currentFr0gID = "", selectedFile = null;
+  let isPyodideReady = false;
+
+  async function initPyodide() {
+    if (isPyodideReady) return;
+    document.getElementById('genBtn').textContent = "Loading...";
+    window.pyodide = await loadPyodide({
+      indexURL: "https://cdn.jsdelivr.net/pyodide/v0.26.2/full/"
+    });
+    await window.pyodide.loadPackage("requests");
+    await fr0g.init();
+    isPyodideReady = true;
+    document.getElementById('genBtn').textContent = "Generate fr0g ID";
+  }
+
+  function toggleNet() {}
+
+  function switchTab(n) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.getElementById('content' + n).classList.add('active');
+    document.querySelectorAll('.nav-tabs button').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab' + n).classList.add('active');
+  }
+
+  async function generateID() {
+    await initPyodide();
+    const [id, secret] = await fr0g.random_keypair(1);
+    currentFr0gID = id;
+    currentSecret = secret;
+    document.getElementById('id-result').classList.remove('hidden');
+    document.getElementById('display-fr0g').textContent = id;
+    document.getElementById('display-secret').textContent = secret;
+  }
+
+  function copyToClipboard(type) {
+    const txt = type === 'id' ? currentFr0gID : currentSecret;
+    navigator.clipboard.writeText(txt);
+    alert('Copied!');
+  }
+
+  function handleDrop(e) { e.preventDefault(); handleFile(e.dataTransfer.files[0]); }
+  function handleFileSelect(e) { handleFile(e.target.files[0]); }
+
+  function handleFile(file) {
+    selectedFile = file;
+    document.getElementById('preview-area').classList.remove('hidden');
+    document.getElementById('file-name').textContent = file.name;
+    document.getElementById('file-size').textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+  }
+
+  async function startUpload() {
+    if (!selectedFile || !currentSecret) return alert('Please generate ID and select a file');
+    await initPyodide();
+    const btn = document.getElementById('upload-btn');
+    const prog = document.getElementById('upload-progress');
+    btn.disabled = true;
+    prog.classList.remove('hidden');
+    prog.style.width = '10%';
+    try {
+      const index = parseInt(document.getElementById('upload-index').value);
+      const desc = document.getElementById('upload-desc').value || "";
+      const discoverable = document.getElementById('discoverable').checked;
+      const result = await fr0g.upload(selectedFile, currentSecret, index, discoverable, desc);
+      alert(`Upload completed\nTx: ${result.hash || result.id || 'OK'}`);
+    } catch(e) {
+      alert('Error: ' + (e.message || e));
+    }
+    btn.disabled = false;
+    prog.classList.add('hidden');
+  }
+
+  async function loadVault() {
+    const id = document.getElementById('vault-id').value.trim();
+    if (!id) return alert('Please enter a fr0g ID');
+    await initPyodide();
+    const vaultDiv = document.getElementById('vault-files');
+    vaultDiv.innerHTML = '<div style="color: var(--text-dim);">Loading...</div>';
+    try {
+      const [contentBytes, mime] = await fr0g.get_content(id, 0);
+      const blob = new Blob([contentBytes], { type: mime || 'application/octet-stream' });
+      const url = URL.createObjectURL(blob);
+      vaultDiv.innerHTML = `
+        <div class="card">
+          <p class="font-mono text-sm mb-4">${id} • index 0 • ${mime}</p>
+          <a href="${url}" download="fr0g-file" class="primary inline-block px-6 py-3">Download File</a>
+          <button onclick="deleteFromVault('${id}')" class="danger inline-block px-6 py-3 ml-4">Delete</button>
+        </div>
+      `;
+    } catch(e) {
+      vaultDiv.innerHTML = `<div style="color: var(--red);">Error: ${e.message}</div>`;
+    }
+  }
+
+  async function deleteFromVault(id) {
+    if (!currentSecret) return alert('Secret not available');
+    await initPyodide();
+    await fr0g.remove_file(id, 0, currentSecret);
+    alert('File removed');
+    loadVault();
+  }
+
+  async function loadLiveFeed() {
+    const feedDiv = document.getElementById('feed');
+    feedDiv.innerHTML = '<div class="text-center py-12 text-[var(--text-dim)]">Loading recent uploads...</div>';
+
+    if (!fr0g.getLiveFeed) {
+      feedDiv.innerHTML = '<div class="text-center py-12 text-[var(--text-dim)]">Core still loading...</div>';
+      return;
+    }
+
+    try {
+      const items = await fr0g.getLiveFeed(12);
+      feedDiv.innerHTML = '';
+
+      if (items.length === 0) {
+        feedDiv.innerHTML = '<div class="card text-center py-12">No recent uploads found yet.</div>';
+        return;
+      }
+
+      items.forEach(item => {
+        const card = document.createElement('div');
+        card.className = "card cursor-pointer hover:border-[var(--accent)] transition";
+        card.innerHTML = `
+          <div class="text-sm text-[var(--text-dim)] mb-1">${item.category.toUpperCase()}</div>
+          <div class="font-medium mb-1">${item.description}</div>
+          <div class="text-xs font-mono text-[var(--text-dim)] break-all mb-2">
+            ${item.fr0gID.slice(0,12)}…${item.fr0gID.slice(-8)}
+          </div>
+          <div class="text-xs text-[var(--text-dim)]">${item.time}</div>
+        `;
+        card.onclick = () => {
+          document.getElementById('vault-id').value = item.fr0gID;
+          switchTab(3);
+          loadVault();
+        };
+        feedDiv.appendChild(card);
+      });
+    } catch (err) {
+      feedDiv.innerHTML = `<div class="text-[var(--red)] text-center py-8">Error: ${err.message}</div>`;
+    }
+  }
+
+  window.onload = async () => {
+    switchTab(0);
+    await initPyodide();
+    loadLiveFeed();
+  };
+</script>
+
+</body>
+</html>
