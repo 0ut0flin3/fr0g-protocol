@@ -1,4 +1,4 @@
-# fr0g Protocol
+# Fr0g Protocol
 
 fr0g is an application/layer protocol built on the Stellar blockchain. It defines clear, immutable rules for permanently storing, retrieving, and managing files directly on-chain — without servers, without central authorities, and with strong built-in censorship resistance.
 
@@ -33,7 +33,7 @@ Once uploaded, content cannot be removed by any single entity (governments, comp
 - **Human-readable IDs** — easy to share (fr0g…Z5NBG)  
 - **Any file type** supported  
 - **Optional public discoverability** via category indexers  
-- **Client-agnostic** — use Ribbit or build your own tool
+- **Client-agnostic** — use [Ribbit](https://0ut0flin3.github.io/fr0g-protocol/frontend/) or build your own tool
 
 ### Key Features
 - Automatic gzip compression for text-based files  
