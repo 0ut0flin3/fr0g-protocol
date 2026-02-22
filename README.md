@@ -1,158 +1,103 @@
-# Fr0g Protocol - for a free and open internet
-Official Discord: https://discord.gg/4qFn8pUk
+# fr0g Protocol 🐸
 
-Fr0g is an application/layer protocol built on the Stellar blockchain. It defines clear, immutable rules for permanently storing, retrieving, and managing files directly on-chain — without servers, without central authorities, and with strong built-in censorship resistance.
+**Anonymous, serverless and uncensorable temporary file archive on Stellar Testnet.**
 
-Files are automatically divided into small MIME-aware chunks, stored immutably on-chain, optionally compressed, and made discoverable via public category indexers (Images, Videos, Websites, Code, Raw). The protocol enforces strict ownership, chunking, discoverability, deletion, and reserve recovery rules — creating a true on-chain filesystem primitive.
+A small open-source experiment to upload files completely anonymously and make them publicly (or privately) accessible directly on the Stellar Testnet blockchain — no servers, no accounts, no tracking.
+### Ribbit — Official Browser Client
 
-**Currently designed and optimized exclusively for Stellar Testnet** — 100% free, zero real XLM cost.  
-Mainnet support is technically possible using the exact same code, but remains in active development and is not yet recommended for production use. By default, fr0g operates on Testnet. Ongoing work focuses on improving long-term data persistence and robustness on Testnet.
+The simplest and nicest way to use fr0g:
 
-The protocol is fully client-agnostic: any software can read from or write to it following the defined rules. **Ribbit** is the official reference client (browser-based), but developers are encouraged to build alternative implementations.
+→ **[Open Ribbit](https://0ut0flin3.github.io/fr0g-protocol/frontend/index.html)**
 
----
 
-## For Everyone
+### ⚠️ Important Warnings
 
-### What is fr0g?
-fr0g lets you store images, videos, websites, code, JSON, documents — any kind of file — permanently and immutably as part of the Stellar blockchain.
+- **Testnet only**: files are temporary (Stellar Testnet is periodically reset)
+- Not permanent storage
+- Educational and creative experiment
+- Do not use for sensitive or important data
 
-It acts like a decentralized filesystem:  
-- Files are automatically split into ≤64-byte chunks  
-- Stored on-chain via immutable ManageData entries  
-- Replicated across the entire Stellar validator network  
-- Only the owner can modify or delete  
-- Nearly all XLM reserves are recoverable on deletion  
+### What You Can Do Today
 
-Once uploaded, content cannot be removed by any single entity (governments, companies, ISPs) without a majority attack on Stellar itself.
+- Upload any file (images, videos, websites, code, documents…)
+- Get an anonymous **fr0g ID** in one click
+- Make the file visible in the public Discover feed
+- Everything runs **100% client-side** (no backend)
+- Impossible to censor while Testnet is live
+- Completely free
 
-### Why fr0g?
-- **Extreme censorship resistance** — no servers, no DNS, no gatekeepers  
-- **True permanence** — lives as long as Stellar exists  
-- **100% free on Testnet** — no real XLM cost whatsoever  
-- **Near-full reserve recovery** when you delete  
-- **Human-readable IDs** — easy to share (fr0g…Z5NBG)  
-- **Any file type** supported  
-- **Optional public discoverability** via category indexers  
-- **Client-agnostic** — use [Ribbit](https://0ut0flin3.github.io/fr0g-protocol/frontend/) or build your own tool
+### Creative Use Cases (the coolest ones)
 
-### Key Features
-- Automatic gzip compression for text-based files  
-- Up to 100 files per fr0g ID (indices 0–99)  
-- Optional short description (max 25 characters)  
-- Public category indexers: Images, Videos, Websites, Code, Raw  
-- Full owner control: create, read, delete  
-- Designed for Testnet (Mainnet support in progress)
+fr0g shines for anonymous and temporary projects. Here are real examples people are already doing:
 
-### How It Works (Simple Version)
-1. Generate a fr0g ID (a special Stellar-derived address)  
-2. Upload your file — it is chunked, optionally compressed, and written on-chain  
-3. (Optional) make it discoverable by sending a memo to a public category indexer  
-4. Anyone with the fr0g ID can instantly view/download the content  
-5. Only you can delete it and recover nearly all XLM spent
+#### 1. One-File HTML Websites / Ghost Micro-Sites
+Upload a single `index.html` (with inline CSS & JS) and get a full website accessible worldwide just by sharing the fr0g ID.
 
-### Official Client – Ribbit
-Ribbit is the official browser-based client for interacting with the fr0g protocol.  
-It offers a clean interface to generate IDs, upload files, browse public content, and manage your stored data — all running entirely in the browser.
+**Real examples:**
+- Anonymous portfolio
+- Political / artistic manifesto
+- Temporary personal diary
+- Cyberpunk or glitch landing page
+- “My site that will disappear in a few weeks”
 
-→ [Open Ribbit](https://0ut0flin3.github.io/fr0g-protocol/frontend/index.html)
+#### 2. One-File Mini-Games
+Publish complete small games in a single HTML5 file.
 
-The protocol is intentionally client-agnostic — you can build alternative tools, mobile apps, CLI clients, or integrations in any language.
+**Real examples:**
+- Snake, Tic-Tac-Toe, minimal Flappy Bird
+- Short visual novels
+- Interactive experiments
+- “Play my anonymous game before it vanishes”
 
----
+#### 3. Anonymous Art Drops
+Artists releasing work without identity:
+- Generative art
+- Pixel art
+- Glitch art
+- Connected image series via fr0g IDs
 
-## For Developers
+#### 4. Anonymous Poetry & Writing Drops
+Poems, short stories, anonymous letters, haiku, experimental texts.
 
-### Protocol Deep Dive
+#### 5. Secret Dead Drops
+Privately share the fr0g ID as an uncensorable digital dead-drop mailbox.
 
-#### Core Concepts
-- **fr0g ID**: human-readable identifier (reversed Stellar public key + "fr0g" prefix)  
-- **Chunking**: files split into ≤64-byte pieces to fit Stellar ManageData limit  
-- **Storage**: all data stored via ManageData operations on dedicated accounts  
-- **Censorship Resistance**: content replicated across all Stellar validators  
-- **Discoverability**: optional memo transaction to fixed category indexers  
-- **Deletion**: owner-only, removes chunks and recovers ~all reserves
+#### 6. Chain Storytelling
+Collective stories written anonymously, chapter by chapter.
 
-#### Python Reference Implementation (core/fr0g.py)
-The reference implementation is in `core/fr0g.py`. Minimal dependencies.
+### Ribbit — Official Browser Client
 
-```bash
-pip install requests
-```
+The simplest and nicest way to use fr0g:
 
-```python
-import fr0g
+→ **[Open Ribbit](https://0ut0flin3.github.io/fr0g-protocol/frontend/index.html)**
 
-# Generate fr0g ID
-id, secret = fr0g.random_keypair(enabled=True)
-print("fr0g ID:", id)
+Features:
+- Generate fr0g ID in one click
+- Drag & drop upload
+- Real-time public Discover feed
+- Personal Vault
 
-# Upload example
-content = b"<h1>Hello, fr0g!</h1>"
-tx = fr0g.upload(content, secret, 0, make_discoverable=True, description="Simple test")
-print("Transaction hash:", tx['id'])
 
-# Retrieve content
-content_bytes, mime = fr0g.get_content(id, 0)
-print("Mime type:", mime)
-print("Content:", content_bytes
+### Tech Stack
 
-# Delete the file at the specified index
-fr0g.remove_file(id, 0, secret)
+- Blockchain: Stellar Testnet
+- Core: Python + Pyodide
+- Client: HTML + Tailwind + JavaScript
 
-# Delete all files at once
-fr0g.remove_all(id,secret)
+### How to Contribute
 
-# Inspect on-chain data
-print(fr0g.retrieve_data(id))
-```
+This is a small, chaotic and fun project. Every help is welcome:
 
-### JavaScript Client (fr0g.js)
-fr0g.js is a small, in-browser clone of the original Python core.  
-It executes the same logic via Pyodide and provides identical function names and behavior (random_keypair, upload, get_content, remove_file, retrieve_data).
+- Improve Ribbit (UI/UX, new tabs)
+- Add new creative examples
+- Write other clients (CLI, mobile, Rust…)
+- Core optimizations
 
-Used by Ribbit and suitable for any web-based fr0g tool.
+Fork, open issues or send PRs. No need to be an expert.
 
-```html
-<script src="fr0g.js"></script>
-```
+### License
 
-```javascript
-await fr0g.init();
-
-const [id, secret] = await fr0g.random_keypair(1);
-
-const file = new File(["<h1>Test</h1>"], "test.html");
-await fr0g.upload(file, secret, 0, 1, "Test file");
-
-const [content, mime] = await fr0g.get_content(id, 0);
-```
-
-### Repository Structure
-```
-fr0g-protocol/
-├── core/
-│   ├── fr0g.py              # Core protocol logic (Python reference)
-│   └── ed25519_ext.py       # Extended ed25519 utilities
-├── frontend/
-│   ├── fr0g.js              # Browser client (Pyodide-based core clone)
-│   └── index.html           # Ribbit – official web viewer
-├── LICENSE
-└── README.md
-```
-
-### Important Notes
-- **Testnet only (for now)**: the protocol is designed, tested, and intended for exclusive use on Stellar Testnet. Mainnet is technically supported but still under active development and not yet production-ready.
-- **100% free on Testnet**: no real XLM cost.
-- **Client-agnostic**: Ribbit is the official reference client — build your own in any language.
-
-### Donate
-Support protocol development, indexer maintenance, and future Mainnet readiness:  
-**Stellar (XLM):**  
-GDJDYV2WWEWXR4TUQY3TOCA5AF55PXNKRDQT7U2T3C6ZKARMOHYLPHWZ
+Apache License 2.0
 
 ---
-
-**fr0g Protocol** — A decentralized file system on Stellar.  
-Store once. Own forever. Resistant by design.  
-Testnet-first. Mainnet coming.
+Made with curiosity and too much coffee
